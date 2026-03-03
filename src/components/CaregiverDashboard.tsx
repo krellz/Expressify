@@ -41,6 +41,7 @@ import { TaskTracker } from './TaskTracker';
 import { LearnAndPlay } from './LearnAndPlay';
 import QRCode from 'qrcode';
 import { RoutineTask } from '../utils/api';
+import { GUEST_TOKEN } from '../utils/local-storage-api';
 
 interface ArasaacPictogram {
   _id: number;
@@ -95,6 +96,10 @@ export function CaregiverDashboard({
   }, [language]);
 
   const loadUserInfo = async () => {
+    if (accessToken === GUEST_TOKEN) {
+      setUserName('Guest');
+      return;
+    }
     try {
       const { data: { user } } = await supabase.auth.getUser(accessToken);
       if (user) {

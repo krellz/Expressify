@@ -21,9 +21,10 @@ import { useTranslation } from '../utils/translations';
 
 interface AuthScreenProps {
   onAuthenticated: (accessToken: string, userType: 'caregiver' | 'child') => void;
+  onGuestMode: () => void;
 }
 
-export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
+export function AuthScreen({ onAuthenticated, onGuestMode }: AuthScreenProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<'caregiver' | 'child'>('caregiver');
   
@@ -374,6 +375,34 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               ? 'Creates a temporary account for testing' 
               : 'Cria uma conta temporária para testes'}
           </p>
+        </div>
+
+        {/* Guest Mode Button */}
+        <div className="mt-4 text-center">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-200 dark:border-gray-700" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-[#1a1625] dark:via-[#2d2438] dark:to-[#1a1625] px-2 text-gray-500 dark:text-gray-400">
+                {language === 'en' ? 'or' : 'ou'}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <Button
+              onClick={onGuestMode}
+              variant="ghost"
+              className="w-full text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            >
+              {language === 'en' ? 'Continue without signing in' : 'Continuar sem iniciar sessão'}
+            </Button>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {language === 'en'
+                ? 'Data saved locally on this device. Sign in to sync across devices.'
+                : 'Dados guardados localmente neste dispositivo. Inicie sessão para sincronizar.'}
+            </p>
+          </div>
         </div>
       </motion.div>
     </div>

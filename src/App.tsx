@@ -7,6 +7,7 @@ import { ChildCommunicationMode } from './components/ChildCommunicationMode';
 import { AboutPage } from './components/AboutPage';
 import { ContactPage } from './components/ContactPage';
 import { Board } from './utils/api';
+import { GUEST_TOKEN, isGuestMode, setGuestMode } from './utils/local-storage-api';
 import { createClient } from './utils/supabase/client';
 import { Toaster } from './components/ui/sonner';
 import { SettingsProvider } from './utils/settings-context';
@@ -36,6 +37,13 @@ export default function App() {
   }, []);
 
   const checkExistingSession = async () => {
+    // Check if the user was previously using guest mode
+    if (isGuestMode()) {
+      setAccessToken(GUEST_TOKEN);
+      setCurrentScreen({ type: 'dashboard' });
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -54,13 +62,24 @@ export default function App() {
   };
 
   const handleAuthenticated = (token: string, type: 'caregiver' | 'child') => {
+    setGuestMode(false);
     setAccessToken(token);
     setUserType(type);
     setCurrentScreen({ type: 'dashboard' });
   };
 
+  const handleGuestMode = () => {
+    setGuestMode(true);
+    setAccessToken(GUEST_TOKEN);
+    setCurrentScreen({ type: 'dashboard' });
+  };
+
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (accessToken === GUEST_TOKEN) {
+      setGuestMode(false);
+    } else {
+      await supabase.auth.signOut();
+    }
     setAccessToken(null);
     setCurrentScreen({ type: 'auth' });
   };
@@ -95,10 +114,10 @@ export default function App() {
         return <SplashScreen />;
       
       case 'auth':
-        return <AuthScreen onAuthenticated={handleAuthenticated} />;
+        return <AuthScreen onAuthenticated={handleAuthenticated} onGuestMode={handleGuestMode} />;
       
       case 'dashboard':
-        if (!accessToken) return <AuthScreen onAuthenticated={handleAuthenticated} />;
+        if (!accessToken) return <AuthScreen onAuthenticated={handleAuthenticated} onGuestMode={handleGuestMode} />;
         
         return (
           <CaregiverDashboard
@@ -113,7 +132,7 @@ export default function App() {
         );
       
       case 'editor':
-        if (!accessToken) return <AuthScreen onAuthenticated={handleAuthenticated} />;
+        if (!accessToken) return <AuthScreen onAuthenticated={handleAuthenticated} onGuestMode={handleGuestMode} />;
         return (
           <BoardEditor
             accessToken={accessToken}
