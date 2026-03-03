@@ -1,4 +1,7 @@
 import { projectId, publicAnonKey } from './supabase/info';
+import { GUEST_TOKEN, localApi } from './local-storage-api';
+
+export { GUEST_TOKEN };
 
 const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-8ddbeee3`;
 
@@ -102,6 +105,8 @@ export const api = {
   },
 
   async getBoards(accessToken: string): Promise<Board[]> {
+    if (accessToken === GUEST_TOKEN) return localApi.getBoards();
+
     const response = await fetch(`${API_BASE}/boards`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -118,6 +123,8 @@ export const api = {
   },
 
   async createBoard(accessToken: string, title: string, pictograms: BoardPictogram[] = []): Promise<Board> {
+    if (accessToken === GUEST_TOKEN) return localApi.createBoard(title, pictograms);
+
     const response = await fetch(`${API_BASE}/boards`, {
       method: 'POST',
       headers: {
@@ -137,6 +144,8 @@ export const api = {
   },
 
   async updateBoard(accessToken: string, boardId: string, title?: string, pictograms?: BoardPictogram[]): Promise<Board> {
+    if (accessToken === GUEST_TOKEN) return localApi.updateBoard(boardId, title, pictograms);
+
     const response = await fetch(`${API_BASE}/boards/${boardId}`, {
       method: 'PUT',
       headers: {
@@ -156,6 +165,8 @@ export const api = {
   },
 
   async deleteBoard(accessToken: string, boardId: string): Promise<void> {
+    if (accessToken === GUEST_TOKEN) return localApi.deleteBoard(boardId);
+
     const response = await fetch(`${API_BASE}/boards/${boardId}`, {
       method: 'DELETE',
       headers: {
@@ -171,6 +182,8 @@ export const api = {
   },
 
   async searchPictograms(accessToken: string, query: string, language: string = 'en'): Promise<Pictogram[]> {
+    if (accessToken === GUEST_TOKEN) return localApi.searchPictograms(query, language);
+
     try {
       const response = await fetch(
         `${API_BASE}/pictograms/search?q=${encodeURIComponent(query)}&lang=${language}`,
@@ -202,6 +215,8 @@ export const api = {
   },
 
   async chatWithAI(accessToken: string, message: string, language: string = 'en'): Promise<{ message: string; board?: { title: string; keywords: string[] } }> {
+    if (accessToken === GUEST_TOKEN) return localApi.chatWithAI(message, language);
+
     const response = await fetch(`${API_BASE}/ai/chat`, {
       method: 'POST',
       headers: {
@@ -224,6 +239,8 @@ export const api = {
   },
 
   async trackPictogramUsage(accessToken: string): Promise<number> {
+    if (accessToken === GUEST_TOKEN) return localApi.trackPictogramUsage();
+
     const response = await fetch(`${API_BASE}/pictograms/track`, {
       method: 'POST',
       headers: {
@@ -241,6 +258,8 @@ export const api = {
   },
 
   async getPictogramUsageCount(accessToken: string): Promise<number> {
+    if (accessToken === GUEST_TOKEN) return localApi.getPictogramUsageCount();
+
     const response = await fetch(`${API_BASE}/pictograms/usage`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -258,6 +277,8 @@ export const api = {
 
   // Tasks
   async getTasks(accessToken: string, language: string = 'en'): Promise<RoutineTask[]> {
+    if (accessToken === GUEST_TOKEN) return localApi.getTasks(language);
+
     const response = await fetch(`${API_BASE}/tasks?lang=${language}`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -281,6 +302,8 @@ export const api = {
     pictogramKeyword?: string,
     pictogramImageUrl?: string
   ): Promise<RoutineTask> {
+    if (accessToken === GUEST_TOKEN) return localApi.createTask(title, language, pictogramId, pictogramKeyword, pictogramImageUrl);
+
     const response = await fetch(`${API_BASE}/tasks`, {
       method: 'POST',
       headers: {
@@ -305,6 +328,8 @@ export const api = {
     language: string,
     updates: { title?: string; completed?: boolean; order?: number }
   ): Promise<RoutineTask> {
+    if (accessToken === GUEST_TOKEN) return localApi.updateTask(taskId, language, updates);
+
     const response = await fetch(`${API_BASE}/tasks/${taskId}?lang=${language}`, {
       method: 'PUT',
       headers: {
@@ -324,6 +349,8 @@ export const api = {
   },
 
   async deleteTask(accessToken: string, taskId: string, language: string): Promise<void> {
+    if (accessToken === GUEST_TOKEN) return localApi.deleteTask(taskId);
+
     const response = await fetch(`${API_BASE}/tasks/${taskId}?lang=${language}`, {
       method: 'DELETE',
       headers: {
@@ -346,6 +373,8 @@ export const api = {
     score: number, 
     round: number
   ): Promise<GamePlay> {
+    if (accessToken === GUEST_TOKEN) return localApi.trackGamePlay(gameId, gameName, score, round);
+
     console.log('Sending game play tracking request:', { gameId, gameName, score, round });
     
     const response = await fetch(`${API_BASE}/games/play`, {
@@ -369,6 +398,8 @@ export const api = {
   },
 
   async getGameStats(accessToken: string): Promise<GameStatsResponse> {
+    if (accessToken === GUEST_TOKEN) return localApi.getGameStats();
+
     console.log('Fetching game stats...');
     
     const response = await fetch(`${API_BASE}/games/stats`, {
@@ -395,6 +426,8 @@ export const api = {
     description: string,
     metadata?: Record<string, any>
   ): Promise<Activity> {
+    if (accessToken === GUEST_TOKEN) return localApi.trackActivity(type, description, metadata);
+
     console.log('Tracking activity:', { type, description, metadata });
     
     const response = await fetch(`${API_BASE}/activities`, {
@@ -417,6 +450,8 @@ export const api = {
   },
 
   async getActivities(accessToken: string): Promise<Activity[]> {
+    if (accessToken === GUEST_TOKEN) return localApi.getActivities();
+
     console.log('Fetching activities...');
     
     const response = await fetch(`${API_BASE}/activities`, {
